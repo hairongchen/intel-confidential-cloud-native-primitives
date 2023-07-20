@@ -2,7 +2,7 @@ FROM ubuntu:22.04 AS quote-server-builder
 
 ARG DCAP_VERSION="1.16"
 
-RUN apt-get update && apt-get install -y git golang curl build-essential  clang protobuf-compiler protobuf-c-compiler libprotobuf-c-dev libprotobuf-c1
+RUN apt-get update && apt-get install -y git golang curl build-essential libssl-dev clang protobuf-compiler protobuf-c-compiler libprotobuf-c-dev libprotobuf-c1
 
 RUN curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf > rustup.sh
 RUN /bin/sh ./rustup.sh --profile minimal -y && rm ./rustup.sh

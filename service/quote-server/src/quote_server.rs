@@ -43,7 +43,7 @@ impl GetQuote for CCNPGetQuote {
             req.user_data, req.nonce
         );
         let result = get_quote(self.local_tee.clone(), req.user_data, req.nonce);
-        match result {
+        match result.await {
             Ok(q) => {
                 msg = Response::new(quote_server::GetQuoteResponse {
                     quote: q,

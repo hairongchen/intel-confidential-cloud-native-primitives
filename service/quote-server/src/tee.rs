@@ -4,6 +4,9 @@ use anyhow::*;
 use sha2::{Digest, Sha512};
 use std::path::Path;
 use std::result::Result::Ok;
+use std::collections::HashMap;
+use serde_json::Value;
+use reqwest::header::HeaderMap;
 use tdx_attest_rs;
 
 #[derive(Debug, Clone)]
@@ -13,6 +16,8 @@ pub enum TeeType {
     TPM,
     PLAIN,
 }
+
+static AZURE_IMDS_URL: &'static str = "http://169.254.169.254/acc/tdquote";
 
 pub fn get_tee_type() -> TeeType {
     if Path::new("/dev/tpm0").exists() {
@@ -59,6 +64,47 @@ fn generate_tdx_report_data(
     Ok(tdx_attest_rs::tdx_report_data_t { d: _d })
 }
 
+async fn post(tdx_report: String, url: String) -> Result<HashMap<String, Value>, reqwest::Error>{
+    let client = reqwest::Client::new();
+
+    let mut headers = HeaderMap::new();
+    headers.insert("Content-Type", "application/json".parse().unwrap());
+
+    let mut data = HashMap::new();
+    data.insert("report", tdx_report);
+
+    Ok(client.post(url).headers(headers).json(&data).send().await?.json::<HashMap<String, Value>>().await?)
+}
+
+async fn get_tdx_quote_azure(report_data: Option<String>, nonce: String) -> Result<String> {
+    if nonce.is_empty() {
+        return Err(anyhow!("empty nonce!"));
+    }
+
+    let tdx_report_data = match generate_tdx_report_data(report_data, nonce) {
+        Ok(v) => v,
+        Err(e) => {
+            return Err(anyhow!("get_tdx_quote: {:?}", e));
+        }
+    };
+
+    let mut tdx_report = tdx_attest_rs::tdx_report_t { d: [0; 1024usize] };
+    let ret = tdx_attest_rs::tdx_att_get_report(Some(&tdx_report_data), &mut tdx_report);
+    if ret != tdx_attest_rs::tdx_attest_error_t::TDX_ATTEST_SUCCESS {
+        return Err(anyhow!("Failed to get the TDX report."));
+    }
+
+    let quote = match post(String::from_utf8(tdx_report.d.to_vec()).expect("Found invalid UTF-8"), AZURE_IMDS_URL.to_string()).await{
+        Ok(v) => v,
+        Err(e) => {
+            return Err(anyhow!("get_tdx_quote: {:?}", e));
+        }
+    };
+
+    serde_json::to_string(&quote).map_err(|e| anyhow!("get_tdx_quote: {:?}", e))
+}
+
+/*
 fn get_tdx_quote(report_data: Option<String>, nonce: String) -> Result<String> {
     if nonce.is_empty() {
         return Err(anyhow!("empty nonce!"));
@@ -78,6 +124,7 @@ fn get_tdx_quote(report_data: Option<String>, nonce: String) -> Result<String> {
     };
     serde_json::to_string(&quote).map_err(|e| anyhow!("get_tdx_quote: {:?}", e))
 }
+*/
 
 fn get_tpm_quote() -> Result<String> {
     Err(anyhow!("TPM to be supported!"))
@@ -87,9 +134,9 @@ fn get_sev_quote() -> Result<String> {
     Err(anyhow!("SEV to be supported!"))
 }
 
-pub fn get_quote(local_tee: TeeType, user_data: String, nonce: String) -> Result<String> {
+pub async fn get_quote(local_tee: TeeType, user_data: String, nonce: String) -> Result<String> {
     match local_tee {
-        TeeType::TDX => get_tdx_quote(Some(user_data), nonce),
+        TeeType::TDX => get_tdx_quote_azure(Some(user_data), nonce).await,
         TeeType::TPM => get_tpm_quote(),
         TeeType::SEV => get_sev_quote(),
         _ => Err(anyhow!("Unexpected case!")),

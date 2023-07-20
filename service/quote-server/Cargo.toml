@@ -12,6 +12,7 @@ tonic = "0.9"
 prost = "0.11"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1.14"
+reqwest= { version = "0.11.18", features = ["json"]}
 anyhow = "1.0"
 async-trait = "0.1.56"
 base64 = "0.13.0"
