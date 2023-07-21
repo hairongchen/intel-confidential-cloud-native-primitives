@@ -64,14 +64,14 @@ fn generate_tdx_report_data(
     Ok(tdx_attest_rs::tdx_report_data_t { d: _d })
 }
 
-async fn post(tdx_report: String, url: String) -> Result<HashMap<String, Value>, reqwest::Error>{
+async fn post(encoded_tdx_report: String, url: String) -> Result<HashMap<String, Value>, reqwest::Error>{
     let client = reqwest::Client::new();
 
     let mut headers = HeaderMap::new();
     headers.insert("Content-Type", "application/json".parse().unwrap());
 
     let mut data = HashMap::new();
-    data.insert("report", tdx_report);
+    data.insert("report", encoded_tdx_report);
 
     Ok(client.post(url).headers(headers).json(&data).send().await?.json::<HashMap<String, Value>>().await?)
 }
@@ -91,10 +91,10 @@ async fn get_tdx_quote_azure(report_data: Option<String>, nonce: String) -> Resu
     let mut tdx_report = tdx_attest_rs::tdx_report_t { d: [0; 1024usize] };
     let ret = tdx_attest_rs::tdx_att_get_report(Some(&tdx_report_data), &mut tdx_report);
     if ret != tdx_attest_rs::tdx_attest_error_t::TDX_ATTEST_SUCCESS {
-        return Err(anyhow!("Failed to get the TDX report."));
+        return Err(anyhow!("Failed to get the TDX report: {:?}", ret));
     }
 
-    let quote = match post(String::from_utf8(tdx_report.d.to_vec()).expect("Found invalid UTF-8"), AZURE_IMDS_URL.to_string()).await{
+    let quote = match post(base64::encode(&tdx_report.d), AZURE_IMDS_URL.to_string()).await{
         Ok(v) => v,
         Err(e) => {
             return Err(anyhow!("get_tdx_quote: {:?}", e));
@@ -103,28 +103,6 @@ async fn get_tdx_quote_azure(report_data: Option<String>, nonce: String) -> Resu
 
     serde_json::to_string(&quote).map_err(|e| anyhow!("get_tdx_quote: {:?}", e))
 }
-
-/*
-fn get_tdx_quote(report_data: Option<String>, nonce: String) -> Result<String> {
-    if nonce.is_empty() {
-        return Err(anyhow!("empty nonce!"));
-    }
-
-    let tdx_report_data = match generate_tdx_report_data(report_data, nonce) {
-        Ok(v) => v,
-        Err(e) => {
-            return Err(anyhow!("get_tdx_quote: {:?}", e));
-        }
-    };
-    let quote = match tdx_attest_rs::tdx_att_get_quote(Some(&tdx_report_data), None, None, 0) {
-        (tdx_attest_rs::tdx_attest_error_t::TDX_ATTEST_SUCCESS, Some(q)) => base64::encode(q),
-        (error_code, _) => {
-            return Err(anyhow!("get_tdx_quote: {:?}", error_code));
-        }
-    };
-    serde_json::to_string(&quote).map_err(|e| anyhow!("get_tdx_quote: {:?}", e))
-}
-*/
 
 fn get_tpm_quote() -> Result<String> {
     Err(anyhow!("TPM to be supported!"))
