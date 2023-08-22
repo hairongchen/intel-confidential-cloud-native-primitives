@@ -11,7 +11,7 @@ image:
 nameOverride: ""
 fullnameOverride: ""
 namespace: ccnp
-namespaceCreate: true
+namespaceCreate: false
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -30,6 +30,7 @@ podSecurityContext: {}
 securityContext: {
   runAsNonRoot: true
 }
+
   # capabilities:
   #   drop:
   #   - ALL

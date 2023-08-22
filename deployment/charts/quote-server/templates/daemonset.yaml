@@ -35,12 +35,12 @@ spec:
 {{- end }}
           livenessProbe:
             exec:
-              command: ["/usr/bin/grpc_health_probe", "-addr=unix:/run/ccnp/uds/quote.sock"]
+              command: ["/usr/bin/grpc-health-probe", "-addr=unix:/run/ccnp/uds/quote-server.sock"]
             initialDelaySeconds: 10
             periodSeconds: 10
           readinessProbe:
             exec:
-              command: ["/usr/bin/grpc_health_probe", "-addr=unix:/run/ccnp/uds/quote.sock"]
+              command: ["/usr/bin/grpc-health-probe", "-addr=unix:/run/ccnp/uds/quote-server.sock"]
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 10
