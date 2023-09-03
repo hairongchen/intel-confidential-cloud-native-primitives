@@ -43,20 +43,21 @@ fn generate_tdx_report_data(
         Ok(v) => v,
         Err(e) => return Err(anyhow!("nonce is not base64 encoded: {:?}", e)),
     };
-    let hash = Sha512::new().chain_update(nonce_decoded);
+    let mut hasher = Sha512::new();
+    hasher.update(nonce_decoded);
     let _ret = match report_data {
         Some(_encoded_report_data) => {
             if _encoded_report_data.is_empty() {
-                hash.clone()
+                hasher.update("")
             } else {
                 let decoded_report_data = match base64::decode(_encoded_report_data) {
                     Ok(v) => v,
                     Err(e) => return Err(anyhow!("user data is not base64 encoded: {:?}", e)),
                 };
-                hash.clone().chain_update(decoded_report_data)
+                hasher.update(decoded_report_data)
             }
         }
-        None => hash.clone(),
+        None => hasher.update(""),
     };
     let _d: [u8; 64] = hash
         .finalize()
