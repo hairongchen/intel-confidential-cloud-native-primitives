@@ -1,3 +1,3 @@
-module github.com/hairongchen/confidential-cloud-native-primitives/sdk/golang/ccnp/quote
+module github.com/hairongchen/confidential-cloud-native-primitives/sdk/golang/ccnp
 
 go 1.18
