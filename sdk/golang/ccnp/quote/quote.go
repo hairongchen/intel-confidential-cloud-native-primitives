@@ -7,7 +7,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/hairongchen/confidential-cloud-native-primitives/tree/quote_server_go_sdk_dev/sdk/golang/ccnp/quote/proto"
+	pb "github.com/hairongchen/confidential-cloud-native-primitives/sdk/golang/ccnp/quote/proto"
 )
 
 const (
