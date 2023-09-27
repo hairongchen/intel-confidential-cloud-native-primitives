@@ -47,13 +47,12 @@ type TDXQuote struct {
 // definition of the quote header and TDReport at:
 // https://github.com/intel/SGXDataCenterAttestationPrimitives/blob/6882afad8644c27db162b40994402c8ad2a7fb32/QuoteGeneration/quote_wrapper/common/inc/sgx_quote_4.h#L141
 type SGX_Quote_Header struct {
-	Version      uint16 ///< 0:  The version this quote structure.
-	Att_key_type uint16 ///< 2:  sgx_attestation_algorithm_id_t.  Describes the type of signature in the signature_data[] field.
-	Tee_type     uint32 ///< 4:  Type of Trusted Execution Environment for which the Quote has been generated.
-	///      Supported values: 0 (SGX), 0x81(TDX)
-	Reserved  uint32    ///< 8:  Reserved field.
-	Vendor_id [16]uint8 ///< 12: Unique identifier of QE Vendor.
-	User_data [20]uint8 ///< 28: Custom attestation key owner data.
+	Version      uint16    ///< 0:  The version this quote structure.
+	Att_key_type uint16    ///< 2:  sgx_attestation_algorithm_id_t.  Describes the type of signature in the signature_data[] field.
+	Tee_type     uint32    ///< 4:  Type of Trusted Execution Environment for which the Quote has been generated. Supported values: 0 (SGX), 0x81(TDX)
+	Reserved     uint32    ///< 8:  Reserved field.
+	Vendor_id    [16]uint8 ///< 12: Unique identifier of QE Vendor.
+	User_data    [20]uint8 ///< 28: Custom attestation key owner data.
 }
 
 type TDReport struct {
@@ -85,7 +84,7 @@ func GetQuote(user_data string, nonce string) (interface{}, error) {
 
 	channel, err := grpc.Dial(UDS_PATH, grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("[quote SDK] can not connect to UDS: %v", err)
+		log.Fatalf("[GetQuote] can not connect to UDS: %v", err)
 	}
 	defer channel.Close()
 
@@ -96,12 +95,12 @@ func GetQuote(user_data string, nonce string) (interface{}, error) {
 
 	response, err := client.GetQuote(ctx, &pb.GetQuoteRequest{UserData: user_data, Nonce: nonce})
 	if err != nil {
-		log.Fatalf("[quote SDK] fail to get quote: %v", err)
+		log.Fatalf("[GetQuote] fail to get quote: %v", err)
 	}
 
 	quote, err := base64.StdEncoding.DecodeString(strings.Trim(response.Quote, "\""))
 	if err != nil {
-		log.Fatalf("[quote SDK] decode quote error: %v", err)
+		log.Fatalf("[GetQuote] decode quote error: %v", err)
 	}
 
 	switch response.QuoteType {
@@ -110,10 +109,10 @@ func GetQuote(user_data string, nonce string) (interface{}, error) {
 	case TYPE_TPM:
 		return parseTPMQuote(quote)
 	default:
-		log.Fatalf("[quote SDK] unknown TEE enviroment!")
+		log.Fatalf("[GetQuote] unknown TEE enviroment!")
 	}
 
-	return nil, pkgerrors.New("[quote SDK] unknown TEE enviroment!")
+	return nil, pkgerrors.New("[GetQuote] unknown TEE enviroment!")
 }
 
 func parseTDXQuote(quote []byte) (interface{}, error) {
