@@ -47,12 +47,12 @@ type TDXQuote struct {
 // definition of the quote header and TDReport at:
 // https://github.com/intel/SGXDataCenterAttestationPrimitives/blob/6882afad8644c27db162b40994402c8ad2a7fb32/QuoteGeneration/quote_wrapper/common/inc/sgx_quote_4.h#L141
 type SGX_Quote_Header struct {
-	Version      uint16    ///< 0:  The version this quote structure.
-	Att_key_type uint16    ///< 2:  sgx_attestation_algorithm_id_t.  Describes the type of signature in the signature_data[] field.
-	Tee_type     uint32    ///< 4:  Type of Trusted Execution Environment for which the Quote has been generated. Supported values: 0 (SGX), 0x81(TDX)
-	Reserved     uint32    ///< 8:  Reserved field.
-	Vendor_id    [16]uint8 ///< 12: Unique identifier of QE Vendor.
-	User_data    [20]uint8 ///< 28: Custom attestation key owner data.
+	Version      uint16    // The version this quote structure.
+	Att_key_type uint16    // sgx_attestation_algorithm_id_t.  Describes the type of signature in the signature_data[] field.
+	Tee_type     uint32    // Type of Trusted Execution Environment for which the Quote has been generated. Supported values: 0 (SGX), 0x81(TDX)
+	Reserved     uint32    // Reserved field.
+	Vendor_id    [16]uint8 // Unique identifier of QE Vendor.
+	User_data    [20]uint8 // Custom attestation key owner data.
 }
 
 type TDReport struct {
