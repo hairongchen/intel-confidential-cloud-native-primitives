@@ -51,7 +51,7 @@ func GetPlatformMeasurement(measurement_type int, report_data string, register_i
 	}
 
 	response, err := client.GetMeasurement(ctx, &pb.GetMeasurementRequest{
-		MeasurementType:     pb.getMeasurement.TYPE.PAAS,
+		MeasurementType:     pb.TYPE_PAAS,
 		MeasurementCategory: measurement_type,
 		ReportData:          report_data,
 		RegisterIndex:       register_index,
