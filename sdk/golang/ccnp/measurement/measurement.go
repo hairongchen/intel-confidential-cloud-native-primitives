@@ -36,8 +36,6 @@ func GetPlatformMeasurement(measurement_type pb.CATEGORY, report_data string, re
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	log.Println("connected")
-
 	if measurement_type > 2 || measurement_type < 0 {
 		log.Fatalf("[GetPlatformMeasurement] Invalid measurement type specified")
 	}
@@ -59,8 +57,6 @@ func GetPlatformMeasurement(measurement_type pb.CATEGORY, report_data string, re
 	if err != nil {
 		log.Fatalf("[GetPlatformMeasurement] fail to get Platform Measurement: %v", err)
 	}
-
-	log.Println("returned")
 
 	return response.Measurement, nil
 }
