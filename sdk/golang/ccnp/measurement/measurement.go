@@ -24,7 +24,7 @@ const (
 	// TYPE_TPM_PCR    = pb.measurement.CATEGORY.TPM        //Get TPM PCR measurement (of a specific register)
 )
 
-func GetPlatformMeasurement(measurement_type measurement.CATEGORY, report_data string, register_index int) (string, error) {
+func GetPlatformMeasurement(measurement_type pb.CATEGORY, report_data string, register_index int) (string, error) {
 	channel, err := grpc.Dial(UDS_PATH, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("[GetPlatformMeasurement] can not connect to UDS: %v", err)
@@ -52,8 +52,8 @@ func GetPlatformMeasurement(measurement_type measurement.CATEGORY, report_data s
 
 	response, err := client.GetMeasurement(ctx, &pb.GetMeasurementRequest{
 		MeasurementType:     pb.TYPE_PAAS,
-		MeasurementCategory: pb.measurement.CATEGORY.TEE_REPORT,
-		ReportData:          report_data,
+		MeasurementCategory: pb.CATEGORY.TEE_REPORT,
+		ReportData:          0,
 		RegisterIndex:       register_index,
 	})
 	if err != nil {
