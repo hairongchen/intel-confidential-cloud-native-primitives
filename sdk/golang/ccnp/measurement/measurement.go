@@ -60,7 +60,7 @@ func GetPlatformMeasurement(measurement_type pb.CATEGORY, report_data string, re
 		log.Fatalf("[GetPlatformMeasurement] fail to get Platform Measurement: %v", err)
 	}
 
-	return response
+	return response.measurement, nil
 }
 
 func GetContainerMeasurement() (interface{}, error) {
