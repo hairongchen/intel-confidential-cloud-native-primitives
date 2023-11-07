@@ -16,12 +16,12 @@ import (
 )
 
 const (
-	UDS_PATH = "unix:/run/ccnp/uds/measurement.sock"
-	TYPE_TDX = "TDX"
-	TYPE_TPM = "TPM"
-	// TYPE_TEE_REPORT = pb.measurement.CATEGORY.TEE_REPORT //Get TEE report
-	// TYPE_TDX_RTMR   = pb.measurement.CATEGORY.TDX_RTMR   //Get TDX RTMR measurement (of a specific register)
-	// TYPE_TPM_PCR    = pb.measurement.CATEGORY.TPM        //Get TPM PCR measurement (of a specific register)
+	UDS_PATH        = "unix:/run/ccnp/uds/measurement.sock"
+	TYPE_TDX        = "TDX"
+	TYPE_TPM        = "TPM"
+	TYPE_TEE_REPORT = pb.CATEGORY_TEE_REPORT //Get TEE report
+	TYPE_TDX_RTMR   = pb.CATEGORY_TDX_RTMR   //Get TDX RTMR measurement (of a specific register)
+	TYPE_TPM_PCR    = pb.CATEGORY_TPM        //Get TPM PCR measurement (of a specific register)
 )
 
 func GetPlatformMeasurement(measurement_type pb.CATEGORY, report_data string, register_index int) (string, error) {
@@ -50,7 +50,7 @@ func GetPlatformMeasurement(measurement_type pb.CATEGORY, report_data string, re
 
 	response, err := client.GetMeasurement(ctx, &pb.GetMeasurementRequest{
 		MeasurementType:     pb.TYPE_PAAS,
-		MeasurementCategory: pb.CATEGORY_TEE_REPORT,
+		MeasurementCategory: measurement_type,
 		ReportData:          "",
 		RegisterIndex:       0,
 	})
