@@ -51,10 +51,10 @@ func GetPlatformMeasurement(measurement_type int, report_data string, register_i
 	}
 
 	response, err := client.GetMeasurement(ctx, &pb.GetMeasurementRequest{
-		measurement_type:     pb.TYPE.PAAS,
-		measurement_category: measurement_type,
-		report_data:          report_data,
-		register_index:       register_index,
+		MeasurementType:     pb.TYPE.PAAS,
+		MeasurementCategory: measurement_type,
+		ReportData:          report_data,
+		RegisterIndex:       register_index,
 	})
 	if err != nil {
 		log.Fatalf("[GetPlatformMeasurement] fail to get Platform Measurement: %v", err)
