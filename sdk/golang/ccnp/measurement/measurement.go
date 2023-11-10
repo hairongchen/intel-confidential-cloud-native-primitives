@@ -94,9 +94,9 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (strin
 	switch input.measurement_type {
 	case pb.CATEGORY_TEE_REPORT:
 		//TODO: need to get the type of TEE: TDX, SEV, vTPM etc.
-		return response.measurement, nil
+		return response.Measurement, nil
 	case pb.CATEGORY_TDX_RTMR:
-		return response.measurement, nil
+		return response.Measurement, nil
 	case pb.CATEGORY_TPM:
 		return "", pkgerrors.New("[GetPlatformMeasurement] TPM to be supported later")
 	default:
