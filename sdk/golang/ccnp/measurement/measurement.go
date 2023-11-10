@@ -16,15 +16,62 @@ import (
 )
 
 const (
-	UDS_PATH        = "unix:/run/ccnp/uds/measurement.sock"
-	TYPE_TDX        = "TDX"
-	TYPE_TPM        = "TPM"
-	TYPE_TEE_REPORT = pb.CATEGORY_TEE_REPORT //Get TEE report
-	TYPE_TDX_RTMR   = pb.CATEGORY_TDX_RTMR   //Get TDX RTMR measurement (of a specific register)
-	TYPE_TPM_PCR    = pb.CATEGORY_TPM        //Get TPM PCR measurement (of a specific register)
+	UDS_PATH = "unix:/run/ccnp/uds/measurement.sock"
 )
 
-func GetPlatformMeasurement(measurement_type pb.CATEGORY, report_data string, register_index int32) (string, error) {
+type GetPlatformMeasurementOptions struct {
+	measurement_type pb.CATEGORY
+	report_data      string
+	register_index   int32
+}
+
+func checkMeasurementType(measurement_type pb.CATEGORY) bool {
+	return measurement_type == pb.CATEGORY_TEE_REPORT || measurement_type == pb.CATEGORY_TDX_RTMR || measurement_type == pb.CATEGORY_TPM
+}
+
+func WithMeasurementType(measurement_type pb.CATEGORY) func(*GetPlatformMeasurementOptions) {
+	return func(opts *GetPlatformMeasurementOptions) {
+		opts.measurement_type = measurement_type
+	}
+}
+
+func WithReportData(report_data string) func(*GetPlatformMeasurementOptions) {
+	return func(opts *GetPlatformMeasurementOptions) {
+		opts.report_data = report_data
+	}
+}
+
+func WithRegisterIndex(register_index int32) func(*GetPlatformMeasurementOptions) {
+	return func(opts *GetPlatformMeasurementOptions) {
+		opts.register_index = register_index
+	}
+}
+
+func GetPlatformMeasurement(opts ...func(GetPlatformMeasurementOptions)) (string, error) {
+	//check parameters
+	if opts.measurement_type != nil {
+		if !checkMeasurementType(input.measurement_type) {
+			log.Fatalf("[GetPlatformMeasurement] Invalid measurement_type specified")
+		}
+	}
+
+	if opts.report_data != nil {
+		if len(report_data) > 64 {
+			log.Fatalf("[GetPlatformMeasurement] Invalid report_data specified")
+		}
+	}
+
+	if opts.register_index != nil {
+		if register_index < 0 || register_index > 16 {
+			log.Fatalf("[GetPlatformMeasurement] Invalid register_index specified")
+		}
+	}
+
+	input := GetPlatformMeasurementOptions{measurement_type: pb.CATEGORY_TEE_REPORT, report_data: "", register_index: nil}
+	for _, opt := range opts {
+		opt(&input)
+	}
+
 	channel, err := grpc.Dial(UDS_PATH, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("[GetPlatformMeasurement] can not connect to UDS: %v", err)
@@ -36,24 +83,13 @@ func GetPlatformMeasurement(measurement_type pb.CATEGORY, report_data string, re
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	if measurement_type > 2 || measurement_type < 0 {
-		log.Fatalf("[GetPlatformMeasurement] Invalid measurement type specified")
-	}
-
-	if report_data != "" && len(report_data) > 64 {
-		log.Fatalf("[GetPlatformMeasurement] Invalid report data specified")
-	}
-
-	if register_index < 0 || register_index > 16 {
-		log.Fatalf("[GetPlatformMeasurement] Invalid report data specified")
-	}
-
 	response, err := client.GetMeasurement(ctx, &pb.GetMeasurementRequest{
 		MeasurementType:     pb.TYPE_PAAS,
-		MeasurementCategory: measurement_type,
-		ReportData:          report_data,
-		RegisterIndex:       register_index,
+		MeasurementCategory: input.measurement_type,
+		ReportData:          input.report_data,
+		RegisterIndex:       input.register_index,
 	})
+
 	if err != nil {
 		log.Fatalf("[GetPlatformMeasurement] fail to get Platform Measurement: %v", err)
 	}
