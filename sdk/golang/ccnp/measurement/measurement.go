@@ -6,7 +6,9 @@
 package measurement
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
 	"log"
 	"time"
 
@@ -16,8 +18,40 @@ import (
 )
 
 const (
-	UDS_PATH = "unix:/run/ccnp/uds/measurement.sock"
+	UDS_PATH       = "unix:/run/ccnp/uds/measurement.sock"
+	TDX_REPORT_LEN = 584
 )
+
+type TDReport_Info struct {
+	TDReport_Raw []uint8 // full TD report
+	TDReport     TDReport_Struct
+}
+
+type TDReport_Struct struct {
+	TeeTcbSvn      [16]uint8
+	Mrseam         [48]uint8
+	Mrseamsigner   [48]uint8
+	SeamAttributes [8]uint8
+	TdAttributes   [8]uint8
+	Xfam           [8]uint8
+	Mrtd           [48]uint8
+	Mrconfigid     [48]uint8
+	Mrowner        [48]uint8
+	Mrownerconfig  [48]uint8
+	Rtmrs          [192]uint8
+	ReportData     [64]uint8
+}
+
+type TPMReport_Info struct {
+	TPMReport_Raw [TDX_REPORT_LEN]uint8
+	TPMReport     TPMReport_Struct
+}
+
+type TPMReport_Struct struct{}
+
+type TDXRtmr_Info struct {
+	TDXRtmr [48]uint8
+}
 
 type GetPlatformMeasurementOptions struct {
 	measurement_type pb.CATEGORY
@@ -26,7 +60,7 @@ type GetPlatformMeasurementOptions struct {
 }
 
 func checkMeasurementType(measurement_type pb.CATEGORY) bool {
-	return measurement_type == pb.CATEGORY_TEE_REPORT || measurement_type == pb.CATEGORY_TDX_RTMR || measurement_type == pb.CATEGORY_TPM
+	return measurement_type == pb.CATEGORY_TEE_REPORT || measurement_type == pb.CATEGORY_TDX_RTMR || measurement_type == pb.CATEGORY_TPM_PCR
 }
 
 func WithMeasurementType(measurement_type pb.CATEGORY) func(*GetPlatformMeasurementOptions) {
@@ -47,9 +81,7 @@ func WithRegisterIndex(register_index int32) func(*GetPlatformMeasurementOptions
 	}
 }
 
-func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (string, error) {
-	//check parameters
-
+func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (interface{}, error) {
 	input := GetPlatformMeasurementOptions{measurement_type: pb.CATEGORY_TEE_REPORT, report_data: "", register_index: 0}
 	for _, opt := range opts {
 		opt(&input)
@@ -57,6 +89,10 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (strin
 
 	if !checkMeasurementType(input.measurement_type) {
 		log.Fatalf("[GetPlatformMeasurement] Invalid measurement_type specified")
+	}
+
+	if input.measurement_type == pb.CATEGORY_TPM {
+		log.Fatalf("[GetPlatformMeasurement] TPM to be supported later")
 	}
 
 	if len(input.report_data) > 64 {
@@ -89,7 +125,39 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (strin
 		log.Fatalf("[GetPlatformMeasurement] fail to get Platform Measurement: %v", err)
 	}
 
-	return response.Measurement, nil
+	switch response.measurement_type {
+	case pb.CATEGORY_TEE_REPORT:
+		var tdreport_info = TDReport_Info{}
+		tdreport_info.TDReport_Raw = response.measurement
+		tdreport_info.TDReport = parseTDXReport(response.measurement)
+		return tdreport_info, nil
+	case pb.CATEGORY_TDX_RTMR:
+		return parseTDXRtmr(response.measurement)
+	case pb.CATEGORY_TPM_PCR:
+		return parseTPMReport(response.measurement)
+	default:
+		log.Fatalf("[GetPlatformMeasurement] unknown TEE enviroment!")
+	}
+
+	return nil, pkgerrors.New("[GetPlatformMeasurement] unknown TEE enviroment!")
+}
+
+func parseTDXReport(report []byte) TDReport_Struct {
+	var tdreport = TDReport_Struct{}
+	err := binary.Read(bytes.NewReader(report[0:len(report)]), binary.LittleEndian, &tdreport)
+	if err != nil {
+		log.Fatalf("[parseTDXReport] fail to parse quote tdreport: %v", err)
+	}
+
+	return tdreport
+}
+
+func parseTDXRtmr(report []byte) (interface{}, error) {
+	return nil, nil
+}
+
+func parseTPMReport(report []byte) (interface{}, error) {
+	return nil, pkgerrors.New("TPM to be supported later.")
 }
 
 func GetContainerMeasurement() (interface{}, error) {
