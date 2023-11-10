@@ -47,29 +47,24 @@ func WithRegisterIndex(register_index int32) func(*GetPlatformMeasurementOptions
 	}
 }
 
-func GetPlatformMeasurement(opts ...func(GetPlatformMeasurementOptions)) (string, error) {
+func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (string, error) {
 	//check parameters
-	if opts.measurement_type != nil {
-		if !checkMeasurementType(input.measurement_type) {
-			log.Fatalf("[GetPlatformMeasurement] Invalid measurement_type specified")
-		}
-	}
 
-	if opts.report_data != nil {
-		if len(report_data) > 64 {
-			log.Fatalf("[GetPlatformMeasurement] Invalid report_data specified")
-		}
-	}
-
-	if opts.register_index != nil {
-		if register_index < 0 || register_index > 16 {
-			log.Fatalf("[GetPlatformMeasurement] Invalid register_index specified")
-		}
-	}
-
-	input := GetPlatformMeasurementOptions{measurement_type: pb.CATEGORY_TEE_REPORT, report_data: "", register_index: nil}
+	input := GetPlatformMeasurementOptions{measurement_type: pb.CATEGORY_TEE_REPORT, report_data: "", register_index: 0}
 	for _, opt := range opts {
 		opt(&input)
+	}
+
+	if !checkMeasurementType(input.measurement_type) {
+		log.Fatalf("[GetPlatformMeasurement] Invalid measurement_type specified")
+	}
+
+	if len(report_data) > 64 {
+		log.Fatalf("[GetPlatformMeasurement] Invalid report_data specified")
+	}
+
+	if register_index < 0 || register_index > 16 {
+		log.Fatalf("[GetPlatformMeasurement] Invalid register_index specified")
 	}
 
 	channel, err := grpc.Dial(UDS_PATH, grpc.WithInsecure())
