@@ -59,11 +59,11 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (strin
 		log.Fatalf("[GetPlatformMeasurement] Invalid measurement_type specified")
 	}
 
-	if len(report_data) > 64 {
+	if len(input.report_data) > 64 {
 		log.Fatalf("[GetPlatformMeasurement] Invalid report_data specified")
 	}
 
-	if register_index < 0 || register_index > 16 {
+	if input.register_index < 0 || input.register_index > 16 {
 		log.Fatalf("[GetPlatformMeasurement] Invalid register_index specified")
 	}
 
