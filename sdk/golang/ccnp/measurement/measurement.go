@@ -128,7 +128,7 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (inter
 
 	measurement, err := base64.StdEncoding.DecodeString(response.Measurement)
 	if err != nil {
-		log.Fatalf("[GetPlatformMeasurement] decode tdreport error: %v", err1)
+		log.Fatalf("[GetPlatformMeasurement] decode tdreport error: %v", err)
 	}
 
 	switch input.measurement_type {
