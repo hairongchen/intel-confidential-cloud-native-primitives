@@ -73,8 +73,6 @@ func WithMeasurementType(measurementType pb.CATEGORY) func(*GetPlatformMeasureme
 func WithReportData(reportData string) func(*GetPlatformMeasurementOptions) {
 	return func(opts *GetPlatformMeasurementOptions) {
 		opts.reportData = reportData
-		log.Printf("reportData = %v", reportData)
-
 	}
 }
 
@@ -116,8 +114,6 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (inter
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-
-	log.Printf("reportData = %v", input.reportData)
 
 	response, err := client.GetMeasurement(ctx, &pb.GetMeasurementRequest{
 		MeasurementType:     pb.TYPE_PAAS,
