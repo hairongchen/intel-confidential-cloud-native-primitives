@@ -73,6 +73,8 @@ func WithMeasurementType(measurementType pb.CATEGORY) func(*GetPlatformMeasureme
 func WithReportData(reportData string) func(*GetPlatformMeasurementOptions) {
 	return func(opts *GetPlatformMeasurementOptions) {
 		opts.reportData = reportData
+		log.Printf("reportData = %v", reportData)
+
 	}
 }
 
@@ -83,7 +85,7 @@ func WithRegisterIndex(registerIndex int32) func(*GetPlatformMeasurementOptions)
 }
 
 func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (interface{}, error) {
-	input := GetPlatformMeasurementOptions{measurementType: pb.CATEGORY_TEE_REPORT, reportData: "", registerIndex: 0}
+	input := GetPlatformMeasurementOptions{measurementType: pb.CATEGORY_TEE_REPORT, reportData: "default", registerIndex: 0}
 	for _, opt := range opts {
 		opt(&input)
 	}
