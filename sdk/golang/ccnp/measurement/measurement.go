@@ -30,7 +30,7 @@ type GetPlatformMeasurementOptions struct {
 }
 
 type TDReportInfo struct {
-	TDReport_Raw []uint8 // full TD report
+	TDReport_Raw [TDX_REPORT_LEN]uint8 // full TD report
 	TDReport     TDReportStruct
 }
 
@@ -126,8 +126,8 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (inter
 		log.Fatalf("[GetPlatformMeasurement] fail to get Platform Measurement: %v", err)
 	}
 
-	measurement, err1 := base64.StdEncoding.DecodeString(response.Measurement)
-	if err1 != nil {
+	measurement, err := base64.StdEncoding.DecodeString(response.Measurement)
+	if err != nil {
 		log.Fatalf("[GetPlatformMeasurement] decode tdreport error: %v", err1)
 	}
 
@@ -135,7 +135,10 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (inter
 	case pb.CATEGORY_TEE_REPORT:
 		//TODO: need to get the type of TEE: TDX, SEV, vTPM etc.
 		var tdReportInfo = TDReportInfo{}
-		tdReportInfo.TDReport_Raw = measurement
+		err = binary.Read(bytes.NewReader(measurement[0:TDX_REPORT_LEN]), binary.LittleEndian, &tdReportInfo.TDReport_Raw)
+		if err != nil {
+			log.Fatalf("[parseTDXQuote] fail to parse quote cert data: %v", err)
+		}
 		tdReportInfo.TDReport = parseTDXReport(measurement)
 		return tdReportInfo, nil
 	case pb.CATEGORY_TDX_RTMR:
@@ -153,7 +156,7 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (inter
 
 func parseTDXReport(report []byte) TDReportStruct {
 	var tdreport = TDReportStruct{}
-	err := binary.Read(bytes.NewReader(report[0:len(report)]), binary.LittleEndian, &tdreport)
+	err := binary.Read(bytes.NewReader(report[0:TDX_REPORT_LEN]), binary.LittleEndian, &tdreport)
 	if err != nil {
 		log.Fatalf("[parseTDXReport] fail to parse quote tdreport: %v", err)
 	}
