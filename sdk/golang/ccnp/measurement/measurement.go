@@ -24,14 +24,14 @@ const (
 )
 
 type GetPlatformMeasurementOptions struct {
-	measurement_type pb.CATEGORY
-	report_data      string
-	register_index   int32
+	measurementType pb.CATEGORY
+	reportData      string
+	registerIndex   int32
 }
 
 type TDReportInfo struct {
-	TDReport_Raw [TDX_REPORT_LEN]uint8 // full TD report
-	TDReport     TDReportStruct
+	TDReportRaw [TDX_REPORT_LEN]uint8 // full TD report
+	TDReport    TDReportStruct
 }
 
 type TDReportStruct struct {
@@ -50,7 +50,7 @@ type TDReportStruct struct {
 }
 
 type TDXRtmrInfo struct {
-	TDXRtmr []uint8
+	TDXRtmrRaw []uint8
 }
 
 type TPMReportInfo struct {
@@ -60,48 +60,48 @@ type TPMReportInfo struct {
 
 type TPMReportStruct struct{}
 
-func checkMeasurementType(measurement_type pb.CATEGORY) bool {
-	return measurement_type == pb.CATEGORY_TEE_REPORT || measurement_type == pb.CATEGORY_TDX_RTMR || measurement_type == pb.CATEGORY_TPM
+func checkMeasurementType(measurementType pb.CATEGORY) bool {
+	return measurementType == pb.CATEGORY_TEE_REPORT || measurementType == pb.CATEGORY_TDX_RTMR || measurementType == pb.CATEGORY_TPM
 }
 
-func WithMeasurementType(measurement_type pb.CATEGORY) func(*GetPlatformMeasurementOptions) {
+func WithMeasurementType(measurementType pb.CATEGORY) func(*GetPlatformMeasurementOptions) {
 	return func(opts *GetPlatformMeasurementOptions) {
-		opts.measurement_type = measurement_type
+		opts.measurementType = measurementType
 	}
 }
 
-func WithReportData(report_data string) func(*GetPlatformMeasurementOptions) {
+func WithReportData(reportData string) func(*GetPlatformMeasurementOptions) {
 	return func(opts *GetPlatformMeasurementOptions) {
-		opts.report_data = report_data
+		opts.reportData = reportData
 	}
 }
 
-func WithRegisterIndex(register_index int32) func(*GetPlatformMeasurementOptions) {
+func WithRegisterIndex(registerIndex int32) func(*GetPlatformMeasurementOptions) {
 	return func(opts *GetPlatformMeasurementOptions) {
-		opts.register_index = register_index
+		opts.registerIndex = registerIndex
 	}
 }
 
 func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (interface{}, error) {
-	input := GetPlatformMeasurementOptions{measurement_type: pb.CATEGORY_TEE_REPORT, report_data: "", register_index: 0}
+	input := GetPlatformMeasurementOptions{measurementType: pb.CATEGORY_TEE_REPORT, reportData: "", registerIndex: 0}
 	for _, opt := range opts {
 		opt(&input)
 	}
 
-	if !checkMeasurementType(input.measurement_type) {
-		log.Fatalf("[GetPlatformMeasurement] Invalid measurement_type specified")
+	if !checkMeasurementType(input.measurementType) {
+		log.Fatalf("[GetPlatformMeasurement] Invalid measurementType specified")
 	}
 
-	if input.measurement_type == pb.CATEGORY_TPM {
+	if input.measurementType == pb.CATEGORY_TPM {
 		log.Fatalf("[GetPlatformMeasurement] TPM to be supported later")
 	}
 
-	if len(input.report_data) > 64 {
-		log.Fatalf("[GetPlatformMeasurement] Invalid report_data specified")
+	if len(input.reportData) > 64 {
+		log.Fatalf("[GetPlatformMeasurement] Invalid reportData specified")
 	}
 
-	if input.register_index < 0 || input.register_index > 16 {
-		log.Fatalf("[GetPlatformMeasurement] Invalid register_index specified")
+	if input.registerIndex < 0 || input.registerIndex > 16 {
+		log.Fatalf("[GetPlatformMeasurement] Invalid registerIndex specified")
 	}
 
 	channel, err := grpc.Dial(UDS_PATH, grpc.WithInsecure())
@@ -117,9 +117,9 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (inter
 
 	response, err := client.GetMeasurement(ctx, &pb.GetMeasurementRequest{
 		MeasurementType:     pb.TYPE_PAAS,
-		MeasurementCategory: input.measurement_type,
-		ReportData:          input.report_data,
-		RegisterIndex:       input.register_index,
+		MeasurementCategory: input.measurementType,
+		ReportData:          input.reportData,
+		RegisterIndex:       input.registerIndex,
 	})
 
 	if err != nil {
@@ -131,7 +131,7 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (inter
 		log.Fatalf("[GetPlatformMeasurement] decode tdreport error: %v", err)
 	}
 
-	switch input.measurement_type {
+	switch input.measurementType {
 	case pb.CATEGORY_TEE_REPORT:
 		//TODO: need to get the type of TEE: TDX, SEV, vTPM etc.
 		var tdReportInfo = TDReportInfo{}
@@ -143,7 +143,7 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (inter
 		return tdReportInfo, nil
 	case pb.CATEGORY_TDX_RTMR:
 		var tdxRtmrInfo = TDXRtmrInfo{}
-		tdxRtmrInfo.TDXRtmr = measurement
+		tdxRtmrInfo.TDXRtmrRaw = measurement
 		return tdxRtmrInfo, nil
 	case pb.CATEGORY_TPM:
 		return "", pkgerrors.New("[GetPlatformMeasurement] TPM to be supported later")
