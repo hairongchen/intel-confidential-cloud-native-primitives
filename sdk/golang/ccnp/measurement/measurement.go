@@ -158,8 +158,10 @@ func parseTDXReport(report []byte) TDReportStruct {
 	var tdreport = TDReportStruct{}
 	err := binary.Read(bytes.NewReader(report[0:TDX_REPORT_LEN]), binary.LittleEndian, &tdreport)
 	if err != nil {
-		log.Fatalf("[parseTDXReport] fail to parse quote tdreport: %v", err)
+		log.Fatalf("[parseTDXReport] fail to parse tdreport: %v", err)
 	}
+
+	log.Printf("report data = %v ", tdreport.ReportData)
 
 	return tdreport
 }
