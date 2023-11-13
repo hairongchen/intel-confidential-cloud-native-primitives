@@ -7,8 +7,6 @@ import (
 )
 
 const (
-	//EMPTY_REPORT_DATA_ENCODED    = "z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg=="
-	//EXPECTED_REPORT_DATA_ENCODED = "XUccU3O9poJXiX53jNGj1w2v4WVAw8TKDyWm8Y0xgJ2khEMyCSCiWfO/sYMEn5xoC8ES2VzXwmKRv9NVu3YnUA=="
 	EXPECTED_REPORT_DATA       = "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh"
 	CATEGORY_UNKNOWN           = 3
 	TDX_RTMR_INDEX_UNKNOWN     = 4
@@ -86,12 +84,12 @@ func parseTDXReportAndEvaluate(r TDReportInfo, withUserData bool, t *testing.T) 
 	if withUserData {
 		if string(tdreport.ReportData[:]) != EXPECTED_REPORT_DATA {
 			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %v, want %v",
-				EXPECTED_REPORT_DATA, EXPECTED_REPORT_DATA)
+				tdreport.ReportData, EXPECTED_REPORT_DATA)
 		}
 	} else {
 		if string(tdreport.ReportData[:]) != "" {
 			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %v, want empty string",
-				EXPECTED_REPORT_DATA)
+				tdreport.ReportData)
 		}
 	}
 }
