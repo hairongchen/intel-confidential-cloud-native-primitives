@@ -54,8 +54,8 @@ type TDXRtmrInfo struct {
 }
 
 type TPMReportInfo struct {
-	TPMReport_Raw []uint8
-	TPMReport     TPMReportStruct
+	TPMReportRaw []uint8
+	TPMReport    TPMReportStruct
 }
 
 type TPMReportStruct struct{}
@@ -135,7 +135,7 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (inter
 	case pb.CATEGORY_TEE_REPORT:
 		//TODO: need to get the type of TEE: TDX, SEV, vTPM etc.
 		var tdReportInfo = TDReportInfo{}
-		err = binary.Read(bytes.NewReader(measurement[0:TDX_REPORT_LEN]), binary.LittleEndian, &tdReportInfo.TDReport_Raw)
+		err = binary.Read(bytes.NewReader(measurement[0:TDX_REPORT_LEN]), binary.LittleEndian, &tdReportInfo.TDReportRaw)
 		if err != nil {
 			log.Fatalf("[parseTDXQuote] fail to parse quote cert data: %v", err)
 		}
