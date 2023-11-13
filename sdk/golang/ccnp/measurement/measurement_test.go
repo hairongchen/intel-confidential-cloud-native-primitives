@@ -22,19 +22,29 @@ const (
 	TDX_MRCONFIGID_LENGTH        = 48
 	TDX_MROWNER_LENGTH           = 48
 	TDX_MROWNERCONFIG_LENGTH     = 48
-	TDX_RTMR_LENGTH              = 192
+	TDX_RTMR_LENGTH              = 48
 	TDX_REPORT_DATA_LENGTH       = 64
 )
 
-func parseTDXReportAndEvaluate(report []byte) nil {
-	tdreport := parseTDXReport(report)
-	if len(tdreport.ReportData) != TDX_REPORT_DATA_LENGTH {
-		t.Fatalf("[TestGetPlatformMeasurement] wrong TDReport size, retrieved: %v, expected: %v", len(tdreport.ReportData), TDX_REPORT_DATA_LENGTH)
+func parseTDXReportAndEvaluate(r TDReportInfo, t *testing.T) {
+	if len(r.TDReportRaw) != EXPECTED_TDX_REPORT_LEN {
+		t.Fatalf("[TestGetPlatformMeasurement] wrong TDReport size, retrieved: %v, expected: %v", len(r.TDReportRaw), EXPECTED_TDX_REPORT_LEN)
+	}
+
+	if len(r.TDReport.ReportData) != TDX_REPORT_DATA_LENGTH {
+		t.Fatalf("[TestGetPlatformMeasurement] wrong TDReport Data size, retrieved: %v, expected: %v", len(tdreport.ReportData), TDX_REPORT_DATA_LENGTH)
+	}
+}
+
+func parseTDXRtmrAndEvaluate(r TDXRtmrInfo, t *testing.T) {
+	if len(r.TDXRtmrRaw) != TDX_RTMR_LENGTH {
+		t.Fatalf("[TestGetPlatformMeasurement] wrong RTMT size, retrieved: %v, expected: %v", len(rtmr), TDX_RTMR_LENGTH)
 	}
 }
 
 func TestGetPlatformMeasurementTDReport(t *testing.T) {
-	reportData, errDecode := base64.StdEncoding.DecodeString(EXPECTED_REPORT_DATA_ENCODED)
+	//reportData, errDecode := base64.StdEncoding.DecodeString(EXPECTED_REPORT_DATA_ENCODED)
+	_, errDecode := base64.StdEncoding.DecodeString(EXPECTED_REPORT_DATA_ENCODED)
 	if errDecode != nil {
 		t.Fatalf("[TestGetPlatformMeasurement] decode report data error: %v", errDecode)
 	}
@@ -44,13 +54,18 @@ func TestGetPlatformMeasurementTDReport(t *testing.T) {
 	if err != nil {
 		t.Fatalf("[TestGetPlatformMeasurement] get Platform Measurement error: %v", err)
 	}
-	//TODO: now only TDX report is supported, if other TEEs added, need to check TEE type first
-	measurement := ret.Measurement
-	if len(measurement) != EXPECTED_TDX_REPORT_LEN {
-		t.Fatalf("[TestGetPlatformMeasurement] wrong TDReport size, retrieved: %v, expected: %v", len(measurement), EXPECTED_TDX_REPORT_LEN)
-	}
 
-	parseTDXReportAndEvaluate(measurement)
+	//TODO: now only TDX report is supported, if other TEEs added, need to check TEE type first
+	switch ret.(type) {
+	case TDReportInfo:
+		var r, _ = ret.(TDReportInfo)
+		parseTDXReportAndEvaluate(r, t)
+	case TDXRtmrInfo:
+		var r, _ = ret.(TDXRtmrInfo)
+		parseTDXReportAndEvaluate(r, t)
+	default:
+		t.Fatalf("[TestGetPlatformMeasurementTDReport] unknown TEE enviroment!")
+	}
 	/*
 	   ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TEE_REPORT))
 	   ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TEE_REPORT), WithReportData(""))
@@ -66,24 +81,24 @@ func TestGetPlatformMeasurementTDReport(t *testing.T) {
 
 /*
 func TestGetPlatformMeasurementRTMR(t *testing.T) {
-	//test get TDX RTMR
-	ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR))
-	ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(1))
+        //test get TDX RTMR
+        ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR))
+        ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(1))
 
-	//test call with undefined report category
-	ret, err := GetPlatformMeasurement(WithMeasurementType(CATEGORY_UNKNOWN))
+        //test call with undefined report category
+        ret, err := GetPlatformMeasurement(WithMeasurementType(CATEGORY_UNKNOWN))
 
-	//test call with undefined rtmr index
-	ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(TDX_RTMR_INDEX_UNKNOWN))
+        //test call with undefined rtmr index
+        ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(TDX_RTMR_INDEX_UNKNOWN))
 
 }
 
 func TestGetPlatformMeasurementWrongParameters(t *testing.T) {
-	//test call with undefined report category
-	ret, err := GetPlatformMeasurement(WithMeasurementType(CATEGORY_UNKNOWN))
+        //test call with undefined report category
+        ret, err := GetPlatformMeasurement(WithMeasurementType(CATEGORY_UNKNOWN))
 
-	//test call with undefined rtmr index
-	ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(TDX_RTMR_INDEX_UNKNOWN))
+        //test call with undefined rtmr index
+        ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(TDX_RTMR_INDEX_UNKNOWN))
 
 }
 */
