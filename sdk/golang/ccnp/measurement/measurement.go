@@ -6,7 +6,9 @@
 package measurement
 
 import (
+	"bytes"
 	"context"
+	"encoding/binary"
 	"log"
 	"time"
 
@@ -23,6 +25,21 @@ type GetPlatformMeasurementOptions struct {
 	measurement_type pb.CATEGORY
 	report_data      string
 	register_index   int32
+}
+
+type TDReport struct {
+	TeeTcbSvn      [16]uint8
+	Mrseam         [48]uint8
+	Mrseamsigner   [48]uint8
+	SeamAttributes [8]uint8
+	TdAttributes   [8]uint8
+	Xfam           [8]uint8
+	Mrtd           [48]uint8
+	Mrconfigid     [48]uint8
+	Mrowner        [48]uint8
+	Mrownerconfig  [48]uint8
+	Rtmrs          [192]uint8
+	ReportData     [64]uint8
 }
 
 func checkMeasurementType(measurement_type pb.CATEGORY) bool {
@@ -104,6 +121,16 @@ func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (strin
 	}
 
 	return "", pkgerrors.New("[GetPlatformMeasurement] unknown TEE enviroment!")
+}
+
+func parseTDXReport(report []byte) TDReport {
+	var tdreport = TDReport{}
+	err := binary.Read(bytes.NewReader(report[0:len(report)]), binary.LittleEndian, &tdreport)
+	if err != nil {
+		log.Fatalf("[parseTDXReport] fail to parse quote tdreport: %v", err)
+	}
+
+	return tdreport
 }
 
 func GetContainerMeasurement() (interface{}, error) {
