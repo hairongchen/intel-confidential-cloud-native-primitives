@@ -8,6 +8,7 @@ import (
 
 const (
 	EXPECTED_REPORT_DATA       = "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh"
+	EXPECTED_REPORT_DATA_SHORT = "abcd"
 	TDREPORT_TYPE_LENGTH       = 4
 	TDREPORT_TYPE_BYTE1        = 129
 	CATEGORY_UNKNOWN           = 3
@@ -29,7 +30,7 @@ const (
 	TDX_REPORT_DATA_LENGTH     = 64
 )
 
-func parseTDXReportAndEvaluate(r TDReportInfo, withUserData bool, t *testing.T) {
+func parseTDXReportAndEvaluate(r TDReportInfo, reportData string, t *testing.T) {
 	if len(r.TDReportRaw) != EXPECTED_TDX_REPORT_LEN {
 		t.Fatalf("[parseTDXReportAndEvaluate] wrong TDReport size, retrieved: %v, expected: %v", len(r.TDReportRaw), EXPECTED_TDX_REPORT_LEN)
 	}
@@ -92,15 +93,15 @@ func parseTDXReportAndEvaluate(r TDReportInfo, withUserData bool, t *testing.T) 
 		t.Fatalf("[parseTDXReportAndEvaluate] wrong TDReport Data length, retrieved: %v, expected: %v", len(tdreport.ReportData), TDX_REPORT_DATA_LENGTH)
 	}
 
-	if withUserData {
-		if string(tdreport.ReportData[:]) != EXPECTED_REPORT_DATA {
-			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %s, want %s",
-				tdreport.ReportData, EXPECTED_REPORT_DATA)
+	if len(reportData) != 0 {
+		if string(tdreport.ReportData[:len(reportData)]) != reportData {
+			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieved = %s, expected %s",
+				tdreport.ReportData, reportData)
 		}
 	} else {
 		var empty_report_data [64]uint8
 		if tdreport.ReportData != empty_report_data {
-			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %v, want empty string",
+			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieved = %v, expected empty string",
 				tdreport.ReportData)
 		}
 	}
@@ -121,7 +122,7 @@ func TestGetPlatformMeasurementTDReportDefault(t *testing.T) {
 	switch ret.(type) {
 	case TDReportInfo:
 		var r, _ = ret.(TDReportInfo)
-		parseTDXReportAndEvaluate(r, false, t)
+		parseTDXReportAndEvaluate(r, "", t)
 	default:
 		t.Fatalf("[TestGetPlatformMeasurementTDReportDefault] unknown TEE enviroment!")
 	}
@@ -136,7 +137,7 @@ func TestGetPlatformMeasurementTDReportCategoryOnly(t *testing.T) {
 	switch ret.(type) {
 	case TDReportInfo:
 		var r, _ = ret.(TDReportInfo)
-		parseTDXReportAndEvaluate(r, false, t)
+		parseTDXReportAndEvaluate(r, "", t)
 
 	default:
 		t.Fatalf("[TestGetPlatformMeasurementTDReportCategoryOnly] unknown TEE enviroment!")
@@ -152,7 +153,7 @@ func TestGetPlatformMeasurementTDReportCategoryAndEmptyReportData(t *testing.T) 
 	switch ret.(type) {
 	case TDReportInfo:
 		var r, _ = ret.(TDReportInfo)
-		parseTDXReportAndEvaluate(r, false, t)
+		parseTDXReportAndEvaluate(r, "", t)
 
 	default:
 		t.Fatalf("[TestGetPlatformMeasurementTDReportCategoryAndReportData] unknown TEE enviroment!")
@@ -168,10 +169,26 @@ func TestGetPlatformMeasurementTDReportCategoryAndReportData(t *testing.T) {
 	switch ret.(type) {
 	case TDReportInfo:
 		var r, _ = ret.(TDReportInfo)
-		parseTDXReportAndEvaluate(r, true, t)
+		parseTDXReportAndEvaluate(r, EXPECTED_REPORT_DATA, t)
 
 	default:
 		t.Fatalf("[TestGetPlatformMeasurementTDReportCategoryAndReportData] unknown TEE enviroment!")
+	}
+}
+
+func TestGetPlatformMeasurementTDReportCategoryAndShortReportData(t *testing.T) {
+	ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TEE_REPORT), WithReportData(EXPECTED_REPORT_DATA_SHORT))
+	if err != nil {
+		t.Fatalf("[TestGetPlatformMeasurementTDReportCategoryAndShortReportData] get Platform Measurement error: %v", err)
+	}
+
+	switch ret.(type) {
+	case TDReportInfo:
+		var r, _ = ret.(TDReportInfo)
+		parseTDXReportAndEvaluate(r, EXPECTED_REPORT_DATA_SHORT, t)
+
+	default:
+		t.Fatalf("[TestGetPlatformMeasurementTDReportCategoryAndShortReportData] unknown TEE enviroment!")
 	}
 }
 
