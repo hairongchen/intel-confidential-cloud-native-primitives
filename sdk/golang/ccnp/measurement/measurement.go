@@ -20,7 +20,7 @@ import (
 
 const (
 	UDS_PATH       = "unix:/run/ccnp/uds/measurement.sock"
-	TDX_REPORT_LEN = 584
+	TDX_REPORT_LEN = 1024
 )
 
 type GetPlatformMeasurementOptions struct {
@@ -35,18 +35,34 @@ type TDReportInfo struct {
 }
 
 type TDReportStruct struct {
-	TeeTcbSvn      [16]uint8
+	//REPORTMACSTRUCT
+	ReportType     [4]uint8
+	Reserved1      [12]uint8
+	CpuSvn         [16]uint8
+	TeeTcbInfoHash [48]uint8
+	TeeInfoHash    [48]uint8
+	ReportData     [64]uint8
+	Reserved2      [32]uint8
+	Mac            [32]uint8
+
+	//TEE_TCB_INFO
 	Mrseam         [48]uint8
 	Mrseamsigner   [48]uint8
+	TeeTcbSvn      [16]uint8
 	SeamAttributes [8]uint8
-	TdAttributes   [8]uint8
-	Xfam           [8]uint8
-	Mrtd           [48]uint8
-	Mrconfigid     [48]uint8
-	Mrowner        [48]uint8
-	Mrownerconfig  [48]uint8
-	Rtmrs          [192]uint8
-	ReportData     [64]uint8
+
+	//RESERVED
+	Reserved3 [17]uint8
+
+	//TDINFO_STRUCT
+	TdAttributes  [8]uint8
+	Xfam          [8]uint8
+	Mrtd          [48]uint8
+	Mrconfigid    [48]uint8
+	Mrowner       [48]uint8
+	Mrownerconfig [48]uint8
+	Rtmrs         [192]uint8
+	Reserved4     [112]uint8
 }
 
 type TDXRtmrInfo struct {
