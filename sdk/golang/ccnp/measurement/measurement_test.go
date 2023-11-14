@@ -87,8 +87,9 @@ func parseTDXReportAndEvaluate(r TDReportInfo, withUserData bool, t *testing.T) 
 				tdreport.ReportData, EXPECTED_REPORT_DATA)
 		}
 	} else {
-		if string(tdreport.ReportData[:]) != "" {
-			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %s, want empty string",
+		var empty_report_data [64]uint8
+		if tdreport.ReportData != empty_report_data {
+			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %v, want empty string",
 				tdreport.ReportData)
 		}
 	}
@@ -163,26 +164,34 @@ func TestGetPlatformMeasurementTDReportCategoryAndReportData(t *testing.T) {
 	}
 }
 
-/*
-func TestGetPlatformMeasurementRTMR(t *testing.T) {
-        //test get TDX RTMR
-        ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR))
-        ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(1))
+func TestGetPlatformMeasurementRTMRWithMeasurementType(t *testing.T) {
+	ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR))
+	if err != nil {
+		t.Fatalf("[TestGetPlatformMeasurementRTMRWithMeasurementType] get Platform Measurement error: %v", err)
+	}
 
-        //test call with undefined report category
-        ret, err := GetPlatformMeasurement(WithMeasurementType(CATEGORY_UNKNOWN))
+	switch ret.(type) {
+	case TDXRtmrInfo:
+		var r, _ = ret.(TDXRtmrInfo)
+		parseTDXRtmrAndEvaluate(r, t)
 
-        //test call with undefined rtmr index
-        ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(TDX_RTMR_INDEX_UNKNOWN))
-
+	default:
+		t.Fatalf("[TestGetPlatformMeasurementRTMRWithMeasurementType] unknown TEE enviroment!")
+	}
 }
 
-func TestGetPlatformMeasurementWrongParameters(t *testing.T) {
-        //test call with undefined report category
-        ret, err := GetPlatformMeasurement(WithMeasurementType(CATEGORY_UNKNOWN))
+func TestGetPlatformMeasurementRTMRWithMeasurementTypeAndIndex(t *testing.T) {
+	ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(1))
+	if err != nil {
+		t.Fatalf("[TestGetPlatformMeasurementRTMRWithMeasurementTypeAndIndex] get Platform Measurement error: %v", err)
+	}
 
-        //test call with undefined rtmr index
-        ret, err := GetPlatformMeasurement(WithMeasurementType(pb.CATEGORY_TDX_RTMR), WithRegisterIndex(TDX_RTMR_INDEX_UNKNOWN))
+	switch ret.(type) {
+	case TDXRtmrInfo:
+		var r, _ = ret.(TDXRtmrInfo)
+		parseTDXRtmrAndEvaluate(r, t)
 
+	default:
+		t.Fatalf("[TestGetPlatformMeasurementRTMRWithMeasurementTypeAndIndex] unknown TEE enviroment!")
+	}
 }
-*/
