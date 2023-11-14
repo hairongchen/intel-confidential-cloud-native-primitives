@@ -177,10 +177,6 @@ func parseTDXReport(report []byte) TDReportStruct {
 		log.Fatalf("[parseTDXReport] fail to parse tdreport: %v", err)
 	}
 
-	log.Printf("report data = %v ", base64.StdEncoding.EncodeToString(tdreport.ReportData[:]))
-	log.Printf("report data = %v ", len(report))
-	log.Printf("report = %v ", base64.StdEncoding.EncodeToString(report))
-
 	return tdreport
 }
 
