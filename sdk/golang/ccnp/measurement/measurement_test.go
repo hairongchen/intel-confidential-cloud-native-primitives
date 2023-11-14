@@ -8,6 +8,8 @@ import (
 
 const (
 	EXPECTED_REPORT_DATA       = "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh"
+	TDREPORT_TYPE_LENGTH       = 4
+	TDREPORT_TYPE_BYTE1        = 129
 	CATEGORY_UNKNOWN           = 3
 	TDX_RTMR_INDEX_UNKNOWN     = 4
 	EXPECTED_TDX_REPORT_LEN    = 1024
@@ -33,6 +35,15 @@ func parseTDXReportAndEvaluate(r TDReportInfo, withUserData bool, t *testing.T) 
 	}
 
 	tdreport := r.TDReport
+
+	if len(tdreport.ReportType) != TDREPORT_TYPE_LENGTH {
+		t.Fatalf("[parseTDXReportAndEvaluate] wrong TDReport Report Type length, retrieved: %v, expected: %v", len(tdreport.ReportType), TDREPORT_TYPE_LENGTH)
+	}
+
+	if tdreport.ReportType[0] != TDREPORT_TYPE_BYTE1 {
+		t.Fatalf("[parseTDXReportAndEvaluate] wrong TDReport ReportType[0], retrieved: %v, expected: %v", tdreport.ReportType[0], TDREPORT_TYPE_BYTE1)
+	}
+
 	if len(tdreport.TeeTcbSvn) != TDX_TCB_SVN_LENGTH {
 		t.Fatalf("[parseTDXReportAndEvaluate] wrong TDReport TEE TCB SVN length, retrieved: %v, expected: %v", len(tdreport.TeeTcbSvn), TDX_TCB_SVN_LENGTH)
 	}
