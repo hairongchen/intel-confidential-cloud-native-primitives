@@ -99,7 +99,7 @@ func WithRegisterIndex(registerIndex int32) func(*GetPlatformMeasurementOptions)
 }
 
 func GetPlatformMeasurement(opts ...func(*GetPlatformMeasurementOptions)) (interface{}, error) {
-	input := GetPlatformMeasurementOptions{measurementType: pb.CATEGORY_TEE_REPORT, reportData: "default", registerIndex: 0}
+	input := GetPlatformMeasurementOptions{measurementType: pb.CATEGORY_TEE_REPORT, reportData: "", registerIndex: 0}
 	for _, opt := range opts {
 		opt(&input)
 	}

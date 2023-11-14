@@ -10,7 +10,7 @@ const (
 	EXPECTED_REPORT_DATA       = "abcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefghabcdefgh"
 	CATEGORY_UNKNOWN           = 3
 	TDX_RTMR_INDEX_UNKNOWN     = 4
-	EXPECTED_TDX_REPORT_LEN    = 584
+	EXPECTED_TDX_REPORT_LEN    = 1024
 	TEE_TYPE_TDX               = 129
 	TDX_TCB_SVN_LENGTH         = 16
 	TDX_MRSEAM_LENGTH          = 48
@@ -78,17 +78,17 @@ func parseTDXReportAndEvaluate(r TDReportInfo, withUserData bool, t *testing.T) 
 	}
 
 	if len(tdreport.ReportData) != TDX_REPORT_DATA_LENGTH {
-		t.Fatalf("[parseTDXReportAndEvaluate] wrong TDReport Data size, retrieved: %v, expected: %v", len(tdreport.ReportData), TDX_REPORT_DATA_LENGTH)
+		t.Fatalf("[parseTDXReportAndEvaluate] wrong TDReport Data length, retrieved: %v, expected: %v", len(tdreport.ReportData), TDX_REPORT_DATA_LENGTH)
 	}
 
 	if withUserData {
 		if string(tdreport.ReportData[:]) != EXPECTED_REPORT_DATA {
-			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %v, want %v",
+			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %s, want %s",
 				tdreport.ReportData, EXPECTED_REPORT_DATA)
 		}
 	} else {
 		if string(tdreport.ReportData[:]) != "" {
-			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %v, want empty string",
+			t.Fatalf("[parseTDXReportAndEvaluate], report data retrieve = %s, want empty string",
 				tdreport.ReportData)
 		}
 	}
