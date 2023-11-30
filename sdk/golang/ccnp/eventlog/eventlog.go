@@ -88,7 +88,7 @@ func isEventlogCategoryValid(eventlogCategory pb.CATEGORY) bool {
 }
 
 func getRawEventlogs(response pb.GetEventlogReply) ([]byte, error) {
-	path := response.eventlog_data_loc
+	path := response.EventlogDataLoc
 	if path == "" {
 		log.Fatalf("[getRawEventlogs] Failed to get eventlog from server")
 	}
@@ -165,7 +165,7 @@ func getPlatformEventlog(opts ...func(*GetPlatformEventlogOptions)) ([]CCEventLo
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	response, err := client.GetMeasurement(ctx, &pb.GetMeasurementRequest{
+	response, err := client.getEventlog(ctx, &pb.GetEventlogRequest{
 		EventlogLevel:    pb.LEVEL_PAAS,
 		EventlogCategory: input.eventlogCategory,
 		StartPosition:    input.startPosition,
@@ -185,7 +185,7 @@ func getPlatformEventlog(opts ...func(*GetPlatformEventlogOptions)) ([]CCEventLo
 		return parseTdxEventlog(rawEventlog)
 
 	case pb.CATEGORY_TPM_EVENTLOG:
-		return "", pkgerrors.New("[getPlatformEventlog] vTPM to be supported later")
+		return nil, pkgerrors.New("[getPlatformEventlog] vTPM to be supported later")
 	default:
 		log.Fatalf("[getPlatformEventlog] unknown TEE enviroment!")
 	}
