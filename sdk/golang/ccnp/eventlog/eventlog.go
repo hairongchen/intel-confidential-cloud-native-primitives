@@ -118,12 +118,12 @@ func parseTdxEventlog(rawEventlog []byte) ([]CCEventLogEntry, error) {
 			continue
 		}
 
-		eventLog.regIdx = rawEventlog.Rtmr
-		eventLog.evtType = rawEventlog.Etype
-		eventLog.evtSize = rawEventlog.EventSize
-		eventLog.algId = rawEventlog.AlgorithmId
-		eventLog.event = rawEventlog.Event
-		eventLog.digest = []uint8(rawEventlog.Digests[rawEventlog.DigestCount-1])
+		eventLog.RegIdx = rawEventlog.Rtmr
+		eventLog.EvtType = rawEventlog.Etype
+		eventLog.EvtSize = rawEventlog.EventSize
+		eventLog.AlgId = rawEventlog.AlgorithmId
+		eventLog.Event = rawEventlog.Event
+		eventLog.Digest = []uint8(rawEventlog.Digests[rawEventlog.DigestCount-1])
 		parsedEventLogList = append(parsedEventLogList, eventLog)
 
 	}
