@@ -12,7 +12,7 @@ import (
 	"os"
 	"time"
 
-	pb "github.com/intel/confidential-cloud-native-primitives/service/eventlog-server/proto"
+	pb "github.com/hairongchen/confidential-cloud-native-primitives/service/eventlog-server/proto"
 	pkgerrors "github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
