@@ -165,7 +165,7 @@ func getPlatformEventlog(opts ...func(*GetPlatformEventlogOptions)) ([]CCEventLo
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	response, err := client.getEventlog(ctx, &pb.GetEventlogRequest{
+	response, err := client.GetEventlog(ctx, &pb.GetEventlogRequest{
 		EventlogLevel:    pb.LEVEL_PAAS,
 		EventlogCategory: input.eventlogCategory,
 		StartPosition:    input.startPosition,
