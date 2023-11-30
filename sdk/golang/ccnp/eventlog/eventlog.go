@@ -139,24 +139,24 @@ func GetPlatformEventlog(opts ...func(*GetPlatformEventlogOptions)) ([]CCEventLo
 	}
 
 	if !isEventlogCategoryValid(input.eventlogCategory) {
-		log.Fatalf("[getPlatformEventlog] Invalid eventlogCategory specified")
+		log.Fatalf("[GetPlatformEventlog] Invalid eventlogCategory specified")
 	}
 
 	if input.eventlogCategory == pb.CATEGORY_TPM_EVENTLOG {
-		log.Fatalf("[getPlatformEventlog] TPM to be supported later")
+		log.Fatalf("[GetPlatformEventlog] TPM to be supported later")
 	}
 
 	if input.startPosition < 0 {
-		log.Fatalf("[getPlatformEventlog] Invalid startPosition specified")
+		log.Fatalf("[GetPlatformEventlog] Invalid startPosition specified")
 	}
 
-	if input.count <= 0 {
-		log.Fatalf("[getPlatformEventlog] Invalid count specified")
+	if input.count < 0 {
+		log.Fatalf("[GetPlatformEventlog] Invalid count specified")
 	}
 
 	channel, err := grpc.Dial(UDS_PATH, grpc.WithInsecure())
 	if err != nil {
-		log.Fatalf("[getPlatformEventlog] can not connect to UDS: %v", err)
+		log.Fatalf("[GetPlatformEventlog] can not connect to UDS: %v", err)
 	}
 	defer channel.Close()
 
@@ -172,22 +172,22 @@ func GetPlatformEventlog(opts ...func(*GetPlatformEventlogOptions)) ([]CCEventLo
 		Count:            input.count,
 	})
 	if err != nil {
-		log.Fatalf("[getPlatformEventlog] fail to get Platform Eventlog: %v", err)
+		log.Fatalf("[GetPlatformEventlog] fail to get Platform Eventlog: %v", err)
 	}
 
 	switch input.eventlogCategory {
 	case pb.CATEGORY_TDX_EVENTLOG:
 		rawEventlog, err := getRawEventlogs(response)
 		if err != nil {
-			log.Fatalf("[getPlatformEventlog] fail to get raw eventlog: %v", err)
+			log.Fatalf("[GetPlatformEventlog] fail to get raw eventlog: %v", err)
 		}
 
 		return parseTdxEventlog(rawEventlog)
 
 	case pb.CATEGORY_TPM_EVENTLOG:
-		return nil, pkgerrors.New("[getPlatformEventlog] vTPM to be supported later")
+		return nil, pkgerrors.New("[GetPlatformEventlog] vTPM to be supported later")
 	default:
-		log.Fatalf("[getPlatformEventlog] unknown TEE enviroment!")
+		log.Fatalf("[GetPlatformEventlog] unknown TEE enviroment!")
 	}
 
 	return nil, nil
