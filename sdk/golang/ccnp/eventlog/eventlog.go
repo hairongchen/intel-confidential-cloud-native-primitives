@@ -131,7 +131,7 @@ func parseTdxEventlog(rawEventlog []byte) ([]CCEventLogEntry, error) {
 	return parsedEventLogList, nil
 }
 
-func getPlatformEventlog(opts ...func(*GetPlatformEventlogOptions)) ([]CCEventLogEntry, error) {
+func GetPlatformEventlog(opts ...func(*GetPlatformEventlogOptions)) ([]CCEventLogEntry, error) {
 
 	input := GetPlatformEventlogOptions{eventlogCategory: pb.CATEGORY_TDX_EVENTLOG, startPosition: 0, count: 0}
 	for _, opt := range opts {
