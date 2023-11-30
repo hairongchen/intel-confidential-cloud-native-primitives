@@ -24,12 +24,12 @@ const (
 )
 
 type CCEventLogEntry struct {
-	regIdx  uint32
-	evtType uint32
-	evtSize uint32
-	algId   uint16
-	event   []uint8
-	digest  []uint8
+	RegIdx  uint32
+	EvtType uint32
+	EvtSize uint32
+	AlgId   uint16
+	Event   []uint8
+	Digest  []uint8
 }
 
 type TDEventLogSpecIdHeader struct {
