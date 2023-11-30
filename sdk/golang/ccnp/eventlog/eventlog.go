@@ -87,7 +87,7 @@ func isEventlogCategoryValid(eventlogCategory pb.CATEGORY) bool {
 	return eventlogCategory == pb.CATEGORY_TDX_EVENTLOG || eventlogCategory == pb.CATEGORY_TPM_EVENTLOG
 }
 
-func getRawEventlogs(response pb.GetEventlogReply) ([]byte, error) {
+func getRawEventlogs(response *pb.GetEventlogReply) ([]byte, error) {
 	path := response.EventlogDataLoc
 	if path == "" {
 		log.Fatalf("[getRawEventlogs] Failed to get eventlog from server")
