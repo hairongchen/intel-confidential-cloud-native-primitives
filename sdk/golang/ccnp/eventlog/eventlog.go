@@ -13,6 +13,7 @@ import (
 	"time"
 
 	pb "github.com/hairongchen/confidential-cloud-native-primitives/sdk/golang/ccnp/eventlog/proto"
+	el "github.com/hairongchen/confidential-cloud-native-primitives/service/eventlog-server/resources"
 	pkgerrors "github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
@@ -30,33 +31,6 @@ type CCEventLogEntry struct {
 	AlgId   uint16
 	Event   []uint8
 	Digest  []uint8
-}
-
-type TDEventLogSpecIdHeader struct {
-	Address     uint64
-	Length      int
-	HeaderData  []byte
-	Rtmr        uint32
-	Etype       uint32
-	DigestCount uint32
-	DigestSizes map[uint16]uint16
-}
-
-type TDEventLog struct {
-	Rtmr        uint32
-	Etype       uint32
-	DigestCount uint32
-	Digests     []string
-	Data        []byte
-	Event       []byte
-	Length      int
-	EventSize   uint32
-	AlgorithmId uint16
-}
-
-type TDEventLogs struct {
-	Header    TDEventLogSpecIdHeader
-	EventLogs []TDEventLog
 }
 
 type GetPlatformEventlogOptions struct {
@@ -102,7 +76,7 @@ func getRawEventlogs(response *pb.GetEventlogReply) ([]byte, error) {
 }
 
 func parseTdxEventlog(rawEventlog []byte) ([]CCEventLogEntry, error) {
-	var jsonEventlog = TDEventLogs{}
+	var jsonEventlog = el.TDEventLogs{}
 	err := json.Unmarshal(rawEventlog, &jsonEventlog)
 	if err != nil {
 		log.Fatalf("[parseEventlog] Error unmarshal raw eventlog: %v", err)
