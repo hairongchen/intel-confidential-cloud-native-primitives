@@ -33,7 +33,7 @@ impl CCNPGetQuote {
 }
 
 #[tonic::async_trait]
-impl GetQuote for CCNPGetQuote {
+impl Ccnp for CCNPGetQuote {
     async fn get_quote(
         &self,
         request: Request<GetQuoteRequest>,
