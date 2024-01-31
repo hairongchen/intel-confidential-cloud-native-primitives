@@ -111,6 +111,18 @@ func parseTdxEventlog(data []byte, position int, count int) (string, error) {
 		}
 	}
 
+	for i := 0; i < len(eventlogs.EventLogs); i++ {
+		log.Println("Error in getting event size")
+		log.Println("[Debug] eventLog.RegIdx = ", eventlogs.EventLogs[i].Rtmr)
+		log.Println("[Debug] eventLog.EvtType = ", eventlogs.EventLogs[i].Etype)
+		log.Println("[Debug] eventLog.EvtSize = ", eventlogs.EventLogs[i].EventSize)
+		log.Println("[Debug] eventLog.AlgId = ", eventlogs.EventLogs[i].AlgorithmId)
+		log.Printf("[Debug] eventLog.Event = ", eventlogs.EventLogs[i].Event)
+		log.Printf("[Debug] eventLog.Digest len = ", len(eventlogs.EventLogs[i].Digests[0]))
+		log.Printf("digestData = %s", eventlogs.EventLogs[i].Digests[0])
+
+	}
+
 	eventlogs_str, err := json.Marshal(eventlogs)
 	if err != nil {
 		log.Println("Error in marshaling event logs")
