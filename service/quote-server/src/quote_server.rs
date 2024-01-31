@@ -4,7 +4,7 @@
 */
 
 use clap::Parser;
-use ccnp_server::ccnp_server::{GetQuote, GetQuoteServer};
+use ccnp_server::ccnp_server::{Ccnp, CcnpServer};
 use ccnp_server::{GetQuoteRequest, GetQuoteResponse};
 use tokio::net::UnixListener;
 use tokio_stream::wrappers::UnixListenerStream;
@@ -83,7 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
     health_reporter
-        .set_serving::<GetQuoteServer<CCNPGetQuote>>()
+        .set_serving::<CcnpServer<CCNPGetQuote>>()
         .await;
 
     let reflection_service = tonic_reflection::server::Builder::configure()
@@ -99,7 +99,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Server::builder()
         .add_service(reflection_service)
         .add_service(health_service)
-        .add_service(GetQuoteServer::new(getquote))
+        .add_service(CcnpServer::new(getquote))
         .serve_with_incoming(uds_stream)
         .await?;
     Ok(())
@@ -132,7 +132,7 @@ mod quote_server_tests {
 
         tokio::spawn(async {
             Server::builder()
-                .add_service(GetQuoteServer::new(getquote))
+                .add_service(CcnpServer::new(getquote))
                 .serve_with_incoming(uds_stream)
                 .await
                 .unwrap();
