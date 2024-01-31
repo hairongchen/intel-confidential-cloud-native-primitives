@@ -1,5 +1,5 @@
 syntax = "proto3";
-package quoteserver;
+package ccnp_server_pb;
 
 message HealthCheckRequest {
   string service = 1;
@@ -15,7 +15,7 @@ message HealthCheckResponse {
   ServingStatus status = 1;
 }
 
-service GetQuote {
+service ccnp {
     rpc GetQuote (GetQuoteRequest) returns (GetQuoteResponse);
 }
 

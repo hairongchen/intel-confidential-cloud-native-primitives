@@ -4,8 +4,8 @@
 */
 
 use clap::Parser;
-use quote_server::get_quote_server::{GetQuote, GetQuoteServer};
-use quote_server::{GetQuoteRequest, GetQuoteResponse};
+use ccnp_server::get_quote_server::{GetQuote, GetQuoteServer};
+use ccnp_server::{GetQuoteRequest, GetQuoteResponse};
 use tokio::net::UnixListener;
 use tokio_stream::wrappers::UnixListenerStream;
 use tonic::{transport::Server, Request, Response, Status};
@@ -13,11 +13,11 @@ use tonic::{transport::Server, Request, Response, Status};
 pub mod tee;
 use tee::*;
 
-pub mod quote_server {
-    tonic::include_proto!("quoteserver");
+pub mod ccnp_server {
+    tonic::include_proto!("ccnp_server_pb");
 
     pub(crate) const FILE_DESCRIPTOR_SET: &[u8] =
-        tonic::include_file_descriptor_set!("quote_server_descriptor");
+        tonic::include_file_descriptor_set!("ccnp_server_descriptor");
 }
 
 pub struct CCNPGetQuote {
