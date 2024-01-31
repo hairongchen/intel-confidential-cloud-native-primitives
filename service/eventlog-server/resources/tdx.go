@@ -351,6 +351,7 @@ func getEventLogDigestInfo(data []byte, index int, digestCount uint32, digestSiz
 			if k == algId {
 				digestSize := digestSizes[k]
 				digestData := data[i : i+int(digestSize)]
+				log.Println("digestData size = ", len(digestData))
 				i = i + int(digestSize)
 				digests = append(digests, fmt.Sprintf("%v", digestData))
 			}
