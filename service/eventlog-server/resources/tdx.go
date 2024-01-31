@@ -241,6 +241,18 @@ func fetchEventlogs() (TDEventLogs, int, error) {
 		count += 1
 	}
 
+	// for i := 0; i < len(eventLogs.EventLogs); i++ {
+	// 	log.Println("Error in getting event size")
+	// 	log.Println("[Debug] eventLog.RegIdx = ", eventLogs.EventLogs[i].RegIdx)
+	// 	log.Println("[Debug] eventLog.EvtType = ", eventLogs.EventLogs[i].EvtType)
+	// 	log.Println("[Debug] eventLog.EvtSize = ", eventLogs.EventLogs[i].EvtSize)
+	// 	log.Println("[Debug] eventLog.AlgId = ", eventLogs.EventLogs[i].AlgId)
+	// 	log.Printf("[Debug] eventLog.Event = ", eventLogs.EventLogs[i].Event)
+	// 	log.Printf("[Debug] eventLog.Digest len = ", len(eventLogs.EventLogs[i].Digest))
+	// 	log.Printf("digestData = %s", eventLogs.EventLogs[i].Digest)
+
+	// }
+
 	return eventLogs, count, nil
 }
 
@@ -351,8 +363,8 @@ func getEventLogDigestInfo(data []byte, index int, digestCount uint32, digestSiz
 			if k == algId {
 				digestSize := digestSizes[k]
 				digestData := data[i : i+int(digestSize)]
-				log.Println("digestData size = ", len(digestData))
-				log.Println("digestData = ", digestData)
+				// log.Println("digestData size = ", len(digestData))
+				log.Println("digestData = ", fmt.Sprintf("%v", digestData))
 				i = i + int(digestSize)
 				digests = append(digests, fmt.Sprintf("%v", digestData))
 			}
