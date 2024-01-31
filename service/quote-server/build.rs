@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tonic_build::configure()
         .out_dir(out_dir)
-        .file_descriptor_set_path(original_out_dir.join("ccnp.bin"))
+        .file_descriptor_set_path(original_out_dir.join("ccnp_server_descriptor.bin"))
         .compile(&["api/ccnp-server.proto"], &["api"])?;
 
     Ok(())
