@@ -4,7 +4,7 @@
 */
 
 use clap::Parser;
-use ccnp_server::get_quote_server::{GetQuote, GetQuoteServer};
+use ccnp_server::ccnp_server::{GetQuote, GetQuoteServer};
 use ccnp_server::{GetQuoteRequest, GetQuoteResponse};
 use tokio::net::UnixListener;
 use tokio_stream::wrappers::UnixListenerStream;
@@ -48,7 +48,7 @@ impl GetQuote for CCNPGetQuote {
         let result = get_quote(self.local_tee.clone(), req.user_data, req.nonce);
         match result {
             Ok(q) => {
-                msg = Response::new(quote_server::GetQuoteResponse {
+                msg = Response::new(ccnp_server::GetQuoteResponse {
                     quote: q,
                     quote_type: format!("{:?}", self.local_tee).to_string(),
                 })
@@ -87,7 +87,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await;
 
     let reflection_service = tonic_reflection::server::Builder::configure()
-        .register_encoded_file_descriptor_set(quote_server::FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(ccnp_server::FILE_DESCRIPTOR_SET)
         .build()
         .unwrap();
 
